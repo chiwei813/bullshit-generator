@@ -71,7 +71,7 @@ class PaperGenerator:
 2. 具體章節要求：
 
 [摘要]
-字數：2000字
+字數：1000字
 結構要求：
 - 研究背景：說明研究領域現況和問題的重要性
 - 研究目的：闡明研究要解決的具體問題
@@ -190,7 +190,7 @@ class PaperGenerator:
                 "temperature": 0.7,  # 保持適度的創造力
                 "topK": 40,
                 "topP": 0.95,
-                "maxOutputTokens": 16384  # 提高輸出長度上限
+                "maxOutputTokens": 16500  # 提高輸出長度上限
             }
         }
 
@@ -219,6 +219,7 @@ class PaperGenerator:
                 
                 # 改進章節解析邏輯
                 current_section = None
+                import re
                 section_text = []
                 
                 for line in generated_text.split('\n'):
@@ -227,31 +228,31 @@ class PaperGenerator:
                         continue
                         
                     # 檢查章節標記並處理子標題
-                    if '[摘要]' in line:
+                    if re.search(r"\[摘要\]", line):
                         if current_section and section_text:
                             sections[current_section] = '\n'.join(section_text)
                         current_section = 'abstract'
                         section_text = []
                         continue
-                    elif '[緒論]' in line:
+                    elif re.search(r"\[緒論\]", line):
                         if current_section and section_text:
                             sections[current_section] = '\n'.join(section_text)
                         current_section = 'introduction'
                         section_text = []
                         continue
-                    elif '[研究方法]' in line:
+                    elif re.search(r"\[研究方法\]", line):
                         if current_section and section_text:
                             sections[current_section] = '\n'.join(section_text)
                         current_section = 'methods'
                         section_text = []
                         continue
-                    elif '[研究結果]' in line:
+                    elif re.search(r"\[研究結果\]", line):
                         if current_section and section_text:
                             sections[current_section] = '\n'.join(section_text)
                         current_section = 'results'
                         section_text = []
                         continue
-                    elif '[討論與建議]' in line or '[討論]' in line:
+                    elif re.search(r"\[討論與建議\]|\[討論\]", line):
                         if current_section and section_text:
                             sections[current_section] = '\n'.join(section_text)
                         current_section = 'discussion'
@@ -570,10 +571,13 @@ class PaperGenerator:
         
         # 添加參考文獻列表
         for source in content['references']:
-            ref_para = doc.add_paragraph()
+            ref_para = doc.add_paragraph()            
+            print(f"Adding reference: {source['title']}")
             ref_para.paragraph_format.first_line_indent = Inches(0.5)
             ref_para.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
             self.create_hyperlink(ref_para, source['title'], source['link'])
+
+            
         
         # 添加頁碼（置中，從摘要頁開始）
         for section in doc.sections:
@@ -756,7 +760,8 @@ class PaperGenerator:
                         formatted_papers.append(formatted_paper)
                     return formatted_papers
                 except json.JSONDecodeError:
-                    print("無法解析搜尋結果為 JSON 格式")
+                    print("無法解析搜尋結果為 JSON 格式，原始回應：")
+                    print(result_text)
                     # 返回空列表作為備用
                     return []
         except Exception as e:
@@ -770,6 +775,7 @@ class PaperGenerator:
             print("正在搜尋最新文獻...")
             self._progress = 10
             latest_papers = self.search_latest_papers(topic)
+            print(f"Number of papers found: {len(latest_papers)}")
             
             # 2. 生成論文內容
             print("正在生成論文內容...")
