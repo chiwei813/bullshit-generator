@@ -1,5 +1,20 @@
-flask
-requests
-bs4
-python-docx
-scholarly
+# Web Framework
+Flask>=2.0.1
+
+# HTTP Requests
+requests>=2.28.1
+
+# HTML Parsing
+beautifulsoup4>=4.11.1  # bs4 是 beautifulsoup4 的匯入名稱
+
+# Word Document Processing
+python-docx>=0.8.11
+
+# Google Scholar API
+scholarly>=1.7.0
+
+# Chinese Text Conversion (簡體轉繁體)
+opencc-python-reimplemented>=0.1.7
+
+# JSON Handling
+json5>=0.9.10
